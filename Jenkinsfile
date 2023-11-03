@@ -22,12 +22,8 @@ node {
             }
 
             archiveArtifacts allowEmptyArchive: true, artifacts: 'dist/add2vals'
+            sh 'ls dist'
         }
         catch(e){}
-        // finally{
-        //     // archiveArtifacts 'dist/add2vals'
-        //     sh 'ls / -al'
-        //     // archiveArtifacts artifacts: 'dist/add2vals'
-        // }
     }
 }

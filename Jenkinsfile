@@ -23,7 +23,7 @@ node {
             archiveArtifacts allowEmptyArchive: true, artifacts: 'dist/add2vals'
             sh 'ls dist'
         }
-        catch(e){
+        catch(Exception e){
             print e
         }
     }

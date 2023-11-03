@@ -24,7 +24,7 @@ node {
         catch(e){}
         finally{
             // archiveArtifacts 'dist/add2vals'
-            sh 'ls test-reports -al'
+            sh 'ls /dist -al'
             // archiveArtifacts artifacts: 'dist/add2vals'
         }
     }

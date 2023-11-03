@@ -17,15 +17,25 @@ node {
     }
     stage('Deploy'){
         try{
-            docker.image('cdrx/pyinstaller-linux:python2').inside{
-                sh 'pyinstaller --onefile sources/add2vals.py'
+            def dockerImage = 'cdrx/pyinstaller-linux:python2'
+            def sourceFile = 'sources/add2vals.py'
+            def targetDirectory = 'dist/add2vals'
+
+            def delivered = docker.image(dockerImage).inside {
+                sh "pyinstaller --onefile ${sourceFile}"
+            }
+
+            if (delivered == 0) {
+                archiveArtifacts allowEmptyArchive: true, artifacts: targetDirectory
+            } else {
+                currentBuild.result = 'FAILURE'
             }
         }
         catch(e){}
-        finally{
-            // archiveArtifacts 'dist/add2vals'
-            sh 'ls / -al'
-            // archiveArtifacts artifacts: 'dist/add2vals'
-        }
+        // finally{
+        //     // archiveArtifacts 'dist/add2vals'
+        //     sh 'ls / -al'
+        //     // archiveArtifacts artifacts: 'dist/add2vals'
+        // }
     }
 }

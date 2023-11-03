@@ -24,7 +24,7 @@ node {
             sh 'ls dist'
         }
         catch(e){
-            println e
+            print e
         }
     }
 }

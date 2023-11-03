@@ -21,7 +21,7 @@ node {
         try{}
         catch(e){}
         finally{
-            archiveArtifacts 'dist/add2vals'
+            archiveArtifacts 'dist/add2vals' 
         }
     }
 }

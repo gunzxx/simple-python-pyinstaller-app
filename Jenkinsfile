@@ -26,6 +26,7 @@ node {
         }
         catch(e){
             echo 'anjay'
+            echo e
         }
     }
 }

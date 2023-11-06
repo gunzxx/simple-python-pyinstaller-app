@@ -36,6 +36,9 @@ pipeline {
                 sh 'pyinstaller --onefile sources/add2vals.py'
             }
             post {
+                failure{
+                    echo 'Gagal'
+                }
                 success {
                     archiveArtifacts 'dist/add2vals'
                 }

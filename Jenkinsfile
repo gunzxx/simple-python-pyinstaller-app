@@ -7,11 +7,12 @@ pipeline {
         stage('Build') {
             agent {
                 docker {
-                    image 'python:2-alpine'
+                    image 'python:3.12.0-alpine3.18'
                 }
             }
             steps {
                 sh 'python -m py_compile sources/add2vals.py sources/calc.py'
+                stash(name: 'compiled-results', includes: 'sources/*.py*')
             }
         }
         stage('Test') {
@@ -21,17 +22,12 @@ pipeline {
                 }
             }
             steps {
-                sh 'py.test --verbose --junit-xml test-reports/results.xml sources/test_calc.py'
+                sh 'py.test --junit-xml test-reports/results.xml sources/test_calc.py'
             }
             post {
                 always {
                     junit 'test-reports/results.xml'
                 }
-            }
-        }
-        stage('Manual Approval') {
-            steps {
-                input "Lanjutkan ke tahap Deploy?"
             }
         }
         stage('Deliver') { 

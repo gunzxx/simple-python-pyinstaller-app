@@ -23,22 +23,22 @@ node {
     }
 
     stage('Deploy') {
-        environment {
-            VOLUME = pwd() + '/sources:/src'
-            IMAGE = 'cdrx/pyinstaller-linux:python2'
-        }
+        try{
+            def VOLUME = pwd() + '/sources:/src'
+            def IMAGE = 'cdrx/pyinstaller-linux:python2'
 
-        script {
-            sleep time: 60, unit: 'SECONDS'
-        }
+            script {
+                sleep time: 60, unit: 'SECONDS'
+            }
 
-        dir(path: env.BUILD_ID) {
-            unstash(name: 'compiled-results')
-            sh "docker run --rm -v ${VOLUME} ${IMAGE} pyinstaller -F add2vals.py"
+            dir(path: env.BUILD_ID) {
+                unstash(name: 'compiled-results')
+                sh "docker run --rm -v ${VOLUME} ${IMAGE} pyinstaller -F add2vals.py"
+            }
         }
-
-        try{}
-        catch(e){}
+        catch(Exception e){
+            print e
+        }
         finally{
                 archiveArtifacts "${env.BUILD_ID}/sources/dist/add2vals"
                 sh "docker run --rm -v ${VOLUME} ${IMAGE} rm -rf build dist"

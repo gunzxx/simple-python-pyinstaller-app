@@ -17,8 +17,7 @@ node {
     }
     stage('Deploy'){
         try{
-            docker.image('cdrx/pyinstaller-linux:python3').inside{
-                env.CI = 'true'
+            docker.image('cdrx/pyinstaller-linux:python3').run("--name submission-1").inside{
                 sh 'pyinstaller --onefile sources/add2vals.py'
                 archiveArtifacts allowEmptyArchive: true, artifacts: 'dist/add2vals'
                 sh 'ls dist'

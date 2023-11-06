@@ -35,7 +35,7 @@ pipeline {
                 input "Lanjutkan ke tahap Deploy?"
             }
         }
-        stage('Deliver') { 
+        stage('Deploy') { 
             agent any
             environment { 
                 VOLUME = '$(pwd)/sources:/src'

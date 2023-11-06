@@ -27,13 +27,12 @@ pipeline {
             }
         }
         stage('Manual Approval') {
-            input {
-                message "Apakah Anda ingin melanjutkan?"
-                ok "Lanjutkan"
-                // submitter "user1", "user2" // Ganti dengan nama pengguna yang diizinkan untuk memberikan persetujuan
-            }
             steps {
-                // Langkah-langkah yang akan dijalankan setelah persetujuan diberikan
+                input {
+                    message "Apakah Anda ingin melanjutkan?"
+                    ok "Lanjutkan"
+                    // submitter "user1", "user2" // Ganti dengan nama pengguna yang diizinkan untuk memberikan persetujuan
+                }
             }
         }
         stage('Deliver') {

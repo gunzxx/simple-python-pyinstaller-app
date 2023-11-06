@@ -1,8 +1,7 @@
 node {
     try {
         stage('Build') {
-            def buildDockerImage = docker.image('python:3.12.0-alpine3.18')
-            buildDockerImage.inside {
+            docker.image('python:3.12.0-alpine3.18').inside {
                 sh 'python -m py_compile sources/add2vals.py sources/calc.py'
                 stash(name: 'compiled-results', includes: 'sources/*.py*')
             }

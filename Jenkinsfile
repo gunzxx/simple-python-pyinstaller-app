@@ -1,39 +1,56 @@
-node {
-    try {
+pipeline {
+    agent none
+    options {
+        skipStagesAfterUnstable()
+    }
+    stages {
         stage('Build') {
-            docker.image('python:3.12.0-alpine3.18').inside {
+            agent {
+                docker {
+                    image 'python:2-alpine'
+                }
+            }
+            steps {
                 sh 'python -m py_compile sources/add2vals.py sources/calc.py'
-                stash(name: 'compiled-results', includes: 'sources/*.py*')
             }
         }
-
         stage('Test') {
-            docker.image('qnib/pytest').inside {
-                sh 'py.test --junit-xml test-reports/results.xml sources/test_calc.py'
+            agent {
+                docker {
+                    image 'qnib/pytest'
+                }
             }
-            junit 'test-reports/results.xml'
+            steps {
+                sh 'py.test --verbose --junit-xml test-reports/results.xml sources/test_calc.py'
+            }
+            post {
+                always {
+                    junit 'test-reports/results.xml'
+                }
+            }
         }
-
         stage('Manual Approval') {
-            input "Lanjutkan ke tahap Deploy?"
-        }
-
-        stage('Deploy') {
-            sleep time: 60, unit: 'SECONDS'
-
-            def VOLUME = pwd() + '/sources:/src'
-            docker.image('cdrx/pyinstaller-linux:python2').inside("-v ${VOLUME}") {
-                unstash(name: 'compiled-results')
-                sh "pyinstaller -F add2vals.py"
+            steps {
+                input "Lanjutkan ke tahap Deploy?"
             }
-
-            archiveArtifacts "sources/dist/add2vals"
-            sh "rm -rf build dist"
         }
-    } catch (Exception e) {
-        currentBuild.result = 'FAILURE'
-        throw e
-    } finally {
-        cleanWs()
+        stage('Deploy') {
+            agent {
+                docker {
+                    image 'cdrx/pyinstaller-linux:python2'
+                }
+            }
+            steps {
+                script{
+                    sleep time: 60, unit: 'SECONDS'
+                }
+                sh 'pyinstaller --onefile sources/add2vals.py'
+            }
+            post {
+                success {
+                    archiveArtifacts 'dist/add2vals'
+                }
+            }
+        }
     }
 }

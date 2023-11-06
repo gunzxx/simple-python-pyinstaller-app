@@ -28,11 +28,7 @@ pipeline {
         }
         stage('Manual Approval') {
             steps {
-                input {
-                    message "Apakah Anda ingin melanjutkan?"
-                    ok "Lanjutkan"
-                    // submitter "user1", "user2" // Ganti dengan nama pengguna yang diizinkan untuk memberikan persetujuan
-                }
+                input "Apakah Anda ingin melanjutkan?"
             }
         }
         stage('Deliver') {

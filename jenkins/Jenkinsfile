@@ -1,5 +1,8 @@
 pipeline {
     agent none
+    options {
+        skipStagesAfterUnstable()
+    }
     stages {
         stage('Build') {
             agent {
@@ -26,13 +29,21 @@ pipeline {
                 }
             }
         }
-        stage('Deliver') {
+        stage('Manual Approval') {
+            steps {
+                input "Lanjutkan ke tahap Deploy?"
+            }
+        }
+        stage('Deploy') {
             agent {
                 docker {
                     image 'cdrx/pyinstaller-linux:python2'
                 }
             }
             steps {
+                script{
+                    sleep time: 60, unit: 'SECONDS'
+                }
                 sh 'pyinstaller --onefile sources/add2vals.py'
             }
             post {

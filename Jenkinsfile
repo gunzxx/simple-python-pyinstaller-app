@@ -1,6 +1,6 @@
 node {
     stage('Build') {
-        docker.image('python:2-alpine').inside{
+        docker.image('python:3-alpine').inside{
             sh 'python -m py_compile sources/add2vals.py sources/calc.py'
         }
     }
@@ -17,14 +17,14 @@ node {
     }
     stage('Deploy'){
         try{
-            docker.image('cdrx/pyinstaller-linux:python2').inside{
+            docker.image('cdrx/pyinstaller-linux:python3').inside{
                 sh 'pyinstaller --onefile sources/add2vals.py'
             }
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'dist/add2vals'
+            sh 'ls dist'
         }
-        catch(e){}
-        finally{
-            // archiveArtifacts 'dist/add2vals'
-            archiveArtifacts artifacts: 'dist/add2vals'
+        catch(Exception e){
+            print e
         }
     }
 }

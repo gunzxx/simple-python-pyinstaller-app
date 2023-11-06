@@ -11,10 +11,10 @@ node {
             sh 'py.test --junit-xml test-reports/results.xml sources/test_calc.py'
         }
 
-        post {
-            always {
-                junit 'test-reports/results.xml'
-            }
+        try{}
+        catch(e){}
+        finally{
+            junit 'test-reports/results.xml'
         }
     }
 
@@ -43,11 +43,11 @@ node {
             }
         }
 
-        post {
-            success {
+        try{}
+        catch(e){}
+        finally{
                 archiveArtifacts "${env.BUILD_ID}/sources/dist/add2vals"
                 sh "docker run --rm -v ${VOLUME} ${IMAGE} rm -rf build dist"
-            }
         }
     }
 }

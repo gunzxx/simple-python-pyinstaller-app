@@ -34,21 +34,22 @@ pipeline {
                 input "Lanjutkan ke tahap Deploy?"
             }
         }
-        stage('Deploy') {
-            agent {
-                docker {
-                    image 'cdrx/pyinstaller-linux:python2'
-                }
+        stage('Deliver') { 
+            agent any
+            environment { 
+                VOLUME = '$(pwd)/sources:/src'
+                IMAGE = 'cdrx/pyinstaller-linux:python2'
             }
             steps {
-                script{
-                    sleep time: 60, unit: 'SECONDS'
+                dir(path: env.BUILD_ID) { 
+                    unstash(name: 'compiled-results') 
+                    sh "docker run --rm -v ${VOLUME} ${IMAGE} 'pyinstaller -F add2vals.py'" 
                 }
-                sh 'pyinstaller --onefile sources/add2vals.py'
             }
             post {
                 success {
-                    archiveArtifacts 'dist/add2vals'
+                    archiveArtifacts "${env.BUILD_ID}/sources/dist/add2vals" 
+                    sh "docker run --rm -v ${VOLUME} ${IMAGE} 'rm -rf build dist'"
                 }
             }
         }

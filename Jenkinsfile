@@ -26,6 +26,11 @@ pipeline {
                 }
             }
         }
+        stage('Manual Approval') {
+            steps {
+                input "Apakah Anda ingin melanjutkan?"
+            }
+        }
         stage('Deliver') {
             agent {
                 docker {
@@ -33,7 +38,6 @@ pipeline {
                 }
             }
             steps {
-                input "Apakah Anda ingin melanjutkan?"
                 script{
                     sleep time: 60, unit: 'SECONDS'
                 }

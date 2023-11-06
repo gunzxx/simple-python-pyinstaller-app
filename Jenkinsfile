@@ -9,8 +9,7 @@ node {
         }
 
         stage('Test') {
-            def testDockerImage = docker.image('qnib/pytest')
-            testDockerImage.inside {
+            docker.image('qnib/pytest').inside {
                 sh 'py.test --junit-xml test-reports/results.xml sources/test_calc.py'
             }
             junit 'test-reports/results.xml'
@@ -24,9 +23,7 @@ node {
             sleep time: 60, unit: 'SECONDS'
 
             def VOLUME = pwd() + '/sources:/src'
-            def dockerImage = docker.image('cdrx/pyinstaller-linux:python2')
-            
-            dockerImage.inside("-v ${VOLUME}") {
+            docker.image('cdrx/pyinstaller-linux:python2').inside("-v ${VOLUME}") {
                 unstash(name: 'compiled-results')
                 sh "pyinstaller -F add2vals.py"
             }

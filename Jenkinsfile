@@ -28,7 +28,7 @@ pipeline {
         }
         stage('Manual Approval') {
             steps {
-                input "Apakah Anda ingin melanjutkan?"
+                input "Lanjutkan ke tahap Deploy?"
             }
         }
         stage('Deliver') {

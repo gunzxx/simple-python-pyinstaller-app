@@ -21,13 +21,12 @@ node {
         }
 
         stage('Deploy') {
-            def VOLUME = pwd() + '/sources:/src'
-            def IMAGE = 'cdrx/pyinstaller-linux:python2'
-
             sleep time: 60, unit: 'SECONDS'
+
+            def VOLUME = pwd() + '/sources:/src'
+            def dockerImage = docker.image('cdrx/pyinstaller-linux:python2')
             
-            def deployDockerImage = docker.image(IMAGE)
-            deployDockerImage.inside("-v ${VOLUME}") {
+            dockerImage.inside("-v ${VOLUME}") {
                 unstash(name: 'compiled-results')
                 sh "pyinstaller -F add2vals.py"
             }

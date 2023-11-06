@@ -26,14 +26,23 @@ pipeline {
                 }
             }
         }
+        stage('Manual Approval') {
+            input {
+                message "Apakah Anda ingin melanjutkan?"
+                ok "Lanjutkan"
+                // submitter "user1", "user2" // Ganti dengan nama pengguna yang diizinkan untuk memberikan persetujuan
+            }
+        }
         stage('Deliver') {
             agent {
                 docker {
                     image 'cdrx/pyinstaller-linux:python2'
-                    args '-it --entrypoint=/bin/bash'
                 }
             }
             steps {
+                script{
+                    sleep time: 60, unit: 'SECONDS'
+                }
                 sh 'pyinstaller --onefile sources/add2vals.py'
             }
             post {

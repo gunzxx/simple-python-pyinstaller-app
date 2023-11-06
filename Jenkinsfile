@@ -1,61 +1,44 @@
-pipeline {
-    agent none
-    options {
-        skipStagesAfterUnstable()
-    }
-    stages {
+node {
+    try {
         stage('Build') {
-            agent {
-                docker {
-                    image 'python:3.12.0-alpine3.18'
-                }
-            }
-            steps {
+            def buildDockerImage = docker.image('python:3.12.0-alpine3.18')
+            buildDockerImage.inside {
                 sh 'python -m py_compile sources/add2vals.py sources/calc.py'
                 stash(name: 'compiled-results', includes: 'sources/*.py*')
             }
         }
+
         stage('Test') {
-            agent {
-                docker {
-                    image 'qnib/pytest'
-                }
-            }
-            steps {
+            def testDockerImage = docker.image('qnib/pytest')
+            testDockerImage.inside {
                 sh 'py.test --junit-xml test-reports/results.xml sources/test_calc.py'
             }
-            post {
-                always {
-                    junit 'test-reports/results.xml'
-                }
-            }
+            junit 'test-reports/results.xml'
         }
+
         stage('Manual Approval') {
-            steps {
-                input "Lanjutkan ke tahap Deploy?"
-            }
+            input "Lanjutkan ke tahap Deploy?"
         }
-        stage('Deploy') { 
-            agent any
-            environment { 
-                VOLUME = '$(pwd)/sources:/src'
-                IMAGE = 'cdrx/pyinstaller-linux:python2'
+
+        stage('Deploy') {
+            def VOLUME = pwd() + '/sources:/src'
+            def IMAGE = 'cdrx/pyinstaller-linux:python2'
+
+            sleep time: 60, unit: 'SECONDS'
+            
+            def deployDockerImage = docker.image(IMAGE)
+            deployDockerImage.inside("-v ${VOLUME}") {
+                unstash(name: 'compiled-results')
+                sh "pyinstaller -F add2vals.py"
             }
-            steps {
-                script{
-                    sleep time: 60, unit: 'SECONDS'
-                }
-                dir(path: env.BUILD_ID) { 
-                    unstash(name: 'compiled-results') 
-                    sh "docker run --rm -v ${VOLUME} ${IMAGE} 'pyinstaller -F add2vals.py'" 
-                }
-            }
-            post {
-                success {
-                    archiveArtifacts "${env.BUILD_ID}/sources/dist/add2vals" 
-                    sh "docker run --rm -v ${VOLUME} ${IMAGE} 'rm -rf build dist'"
-                }
-            }
+
+            archiveArtifacts "sources/dist/add2vals"
+            sh "rm -rf build dist"
         }
+    } catch (Exception e) {
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        cleanWs()
     }
 }
